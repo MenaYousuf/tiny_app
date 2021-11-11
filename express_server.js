@@ -31,6 +31,18 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
+app.post("/urls/: shortURL/delete", (req, res) => {
+  const shortURL = req.params.shortURL;
+
+  if (req.session.userID  && req.session.userID === urlDatabase[shortURL].userID) {
+    delete urlDatabase[shortURL];
+    res.redirect('/urls');
+  } else {
+    const errorMessage = 'Unauthorized Access.';
+   return errorMessage;
+  
+}
+
 app.get("/urls/:shortURL", (req, res) => {
   // const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]};
   const shortUrl = req.params.shortURL;
@@ -63,10 +75,19 @@ app.post("/urls", (req, res) => {
   //   res.redirect(`/urls/${shortURL}`);
 });
 
-// app.post("/urls", (req, res) => {
-//   console.log(req.body);  // Log the POST request body to the console
-//   res.send("Ok");         // Respond with 'Ok' (we will replace this)
+
+// app.get('/u/:shortURL', (req, res) => {
+//   if (urlDatabase[req.params.shortURL]) {
+//     res.redirect(urlDatabase[req.params.shortURL].longURL);
+//   } else {
+//     const errorMessage = 'This short URL does not exist.';
+//     res.status(404).render('urls_error', {user: users[req.session.userID], errorMessage});
+//   }
 // });
+  
+  console.log(req.body);  // Log the POST request body to the console
+  res.send("Ok");         // Respond with 'Ok' (we will replace this)
+});
 
 app.get("/u/:shortURL", (req, res) => {
   // const longUrlparam = req.params.shortURL;
