@@ -1,4 +1,8 @@
 const express = require("express");
+
+const cookieParser = require("cookie-parser")
+
+
 const app = express();
 const PORT = 8080; // default port 8080
 
@@ -6,6 +10,7 @@ app.set("view engine", "ejs");
 
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cookieParser())
 
 const generateRandomString = () => {
   let len = 6;
@@ -23,9 +28,12 @@ const urlDatabase = {
 app.get("/urls", (req, res) => {
   const templateVars = {
     urls: urlDatabase,
+    username: req.cookies["username"],
   };
   res.render("urls_index", templateVars);
 });
+
+
 
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
@@ -40,8 +48,9 @@ app.post("/urls/: shortURL/delete", (req, res) => {
   } else {
     const errorMessage = 'Unauthorized Access.';
    return errorMessage;
-  
 }
+
+
 
 app.get("/urls/:shortURL", (req, res) => {
   // const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]};
@@ -76,18 +85,20 @@ app.post("/urls", (req, res) => {
 });
 
 
-// app.get('/u/:shortURL', (req, res) => {
-//   if (urlDatabase[req.params.shortURL]) {
-//     res.redirect(urlDatabase[req.params.shortURL].longURL);
-//   } else {
-//     const errorMessage = 'This short URL does not exist.';
-//     res.status(404).render('urls_error', {user: users[req.session.userID], errorMessage});
-//   }
-// });
-  
-  console.log(req.body);  // Log the POST request body to the console
-  res.send("Ok");         // Respond with 'Ok' (we will replace this)
+app.get('/u/:shortURL', (req, res) => {
+  if (urlDatabase[req.params.shortURL]) {
+    res.redirect(urlDatabase[req.params.shortURL].longURL);
+  } else {
+    const errorMessage = 'This short URL does not exist.';
+    res.status(404).render('urls_error', {user: users[req.session.userID], errorMessage});
+  }
 });
+  
+//   console.log(req.body);  // Log the POST request body to the console
+//   res.send("Ok");         // Respond with 'Ok' (we will replace this)
+});
+
+
 
 app.get("/u/:shortURL", (req, res) => {
   // const longUrlparam = req.params.shortURL;
@@ -113,6 +124,21 @@ app.get("/u/:shortURL", (req, res) => {
   // }
   res.redirect(longURL);
 });
+
+app.post ("/login", (req, res) => {
+  console.log("hello", req.body.username)
+  const username = req.body.username
+  res.cookie ("username", username)
+
+  res.redirect("/urls")
+
+});
+
+app.post("/logout", (req, res) => {
+res.clearCookie("username")
+  res.redirect("/urls")
+});
+
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
